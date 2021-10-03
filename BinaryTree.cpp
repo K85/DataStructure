@@ -184,8 +184,8 @@ public:
       // Addictional Action.
       if (root->right_child == nullptr || root->right_child == node) {
         printf("%d ", root->value);
-        node = root;
-        root = nullptr; // disconnect.
+        node = root; // update node.
+        root = nullptr; // disconnect to get 1 element from stack.
       } else {
         S.push(root);
         root = root->right_child;
