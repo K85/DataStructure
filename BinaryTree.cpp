@@ -310,7 +310,5 @@ int main() {
 
 
   bt.preorder_walk_iteration(bt.root);
-
-
   return 0;
 }
