@@ -48,9 +48,7 @@ public:
 
 public:
   Node *min(Node *root) {
-    if (root->left_child == nullptr)
-      return root;
-    return min(root->left_child);
+    return root->left_child == nullptr ? root : min(root->left_child);
   }
 
 public:

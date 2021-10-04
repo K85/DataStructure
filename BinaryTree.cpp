@@ -160,7 +160,7 @@ public:
 
       // Addictional Action.
       printf("%d ", root->value);
-      root = root->right;
+      root = root->right_child;
     }
   }
 

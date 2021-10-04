@@ -43,10 +43,7 @@ public:
     // find insert position.
     if (value == root->value)
       return;
-    else if (value < root->value)
-      insert(root->left, value);
-    else
-      insert(root->right, value);
+    insert(value < root->value ? root->left : root->right, value);
   }
 
 public:
@@ -57,10 +54,7 @@ public:
 
     if (value == root->value)
       return root;
-    else if (value < root->value)
-      find(root->left, value);
-    else
-      find(root->right, value);
+    find(value < root->value ? root->left : root->right, value);
   }
 
 public:
