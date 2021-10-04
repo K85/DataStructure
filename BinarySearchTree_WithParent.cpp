@@ -67,7 +67,7 @@ public:
   Node * get_successor_node(Node * target) {
     if (target->right_child != nullptr) return get_min(target->right_child);
     Node * ans = target->parent;
-    while (ans != nullptr && ans->left_child == target) {
+    while (ans != nullptr && ans->left_child != target) {
       target = ans;
       ans = ans->parent;
     }
