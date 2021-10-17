@@ -10,13 +10,14 @@ public:
   class Node {
   public:
     T value;
-    Node * parent;
+    Node *parent;
     Node *left_child;
     Node *right_child;
 
   public:
     Node(T value)
-        : value(value), parent(nullptr), left_child(nullptr), right_child(nullptr) {}
+        : value(value), parent(nullptr), left_child(nullptr),
+          right_child(nullptr) {}
   };
 
 public:
@@ -32,41 +33,48 @@ public:
 public:
   void insert_node(Node *&root, T value) {
 
-    Node * target_parent = nullptr;
-    Node * aux_node = root;
+    Node *target_parent = nullptr;
+    Node *aux_node = root;
 
     // construct target node.
-    Node * target = new Node(value);
+    Node *target = new Node(value);
 
     // find insert position.
     while (aux_node != nullptr) {
       target_parent = aux_node;
-      target->value < aux_node->value ? aux_node = aux_node->left_child : aux_node = aux_node->right_child;
+      target->value < aux_node->value ? aux_node = aux_node->left_child
+                                      : aux_node = aux_node->right_child;
     }
 
     // insert target node into y'left or right
     target->parent = target_parent;
-    if (target_parent == nullptr) root = target;
-    else target->value < target_parent->value ? target_parent->left_child = target : target_parent->right_child = target; 
-
+    if (target_parent == nullptr)
+      root = target;
+    else
+      target->value < target_parent->value
+          ? target_parent->left_child = target
+          : target_parent->right_child = target;
   }
 
 public:
-  Node * get_min(Node * root) {
-    while(root->left_child != nullptr) root = root->left_child;
+  Node *get_min(Node *root) {
+    while (root->left_child != nullptr)
+      root = root->left_child;
     return root;
   }
 
 public:
-  Node * get_max(Node * root) {
-    while(root->right_child != nullptr) root = root->right_child;
+  Node *get_max(Node *root) {
+    while (root->right_child != nullptr)
+      root = root->right_child;
     return root;
   }
 
 public:
-  Node * get_successor_node(Node * target) {
-    if (target->right_child != nullptr) return get_min(target->right_child);
-    Node * ans = target->parent;
+  Node *get_successor_node(Node *target) {
+    if (target->right_child != nullptr)
+      return get_min(target->right_child);
+    Node *ans = target->parent;
     while (ans != nullptr && ans->left_child != target) {
       target = ans;
       ans = ans->parent;
@@ -75,25 +83,32 @@ public:
   }
 
 public:
-  void delete_node(Node * target) {
+  void delete_node(Node *target) {
 
-      Node * x;
-      Node * y;
+    Node *x;
+    Node *y;
 
-      // locate delete target
-      if (target->left_child == nullptr || target->right_child == nullptr) y = target;
-      else y = get_successor_node(target);
+    // locate delete target
+    if (target->left_child == nullptr || target->right_child == nullptr)
+      y = target;
+    else
+      y = get_successor_node(target);
 
-      //  get the child of y
-      y->left_child != nullptr ? x = y->left_child : x = y->right_child;
+    //  get the child of y
+    y->left_child != nullptr ? x = y->left_child : x = y->right_child;
 
-      if (x != nullptr) x->parent = y->parent;
-      
-      if (y->parent == nullptr) root = x;
-      else y == y->parent->left_child ? y->parent->left_child = x : y->parent->right_child = x;
+    if (x != nullptr)
+      x->parent = y->parent;
 
-      if (y != target) target->value = y->value;
-      free(y);
+    if (y->parent == nullptr)
+      root = x;
+    else
+      y == y->parent->left_child ? y->parent->left_child = x
+                                 : y->parent->right_child = x;
+
+    if (y != target)
+      target->value = y->value;
+    free(y);
   }
 
 public:
@@ -132,13 +147,12 @@ public:
   }
 
 public:
-Node * find_node(Node * root, T value) {
-  while (root != nullptr && value != root->value) {
-    value < root->value ? root = root->left_child : root = root->right_child;
+  Node *find_node(Node *root, T value) {
+    while (root != nullptr && value != root->value) {
+      value < root->value ? root = root->left_child : root = root->right_child;
+    }
+    return root;
   }
-  return root;
-}
-
 };
 
 int main() {
@@ -151,7 +165,6 @@ int main() {
   bst.insert_node(bst.root, 500);
   bst.insert_node(bst.root, 300);
   bst.inorder_walk(bst.root);
-
 
   printf("\n");
   return 0;
