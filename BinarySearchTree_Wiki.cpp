@@ -40,17 +40,6 @@ public:
   }
 
 public:
-  void preorder_walk(Node *root) {
-    if (root == nullptr)
-      return;
-    cout << root->value << " ";
-    if (root->left != nullptr)
-      preorder_walk(root->left);
-    if (root->right != nullptr)
-      preorder_walk(root->right);
-  }
-
-public:
   void inorder_walk(Node *root) {
     if (root == nullptr)
       return;
@@ -59,17 +48,6 @@ public:
     cout << root->value << " ";
     if (root->right != nullptr)
       inorder_walk(root->right);
-  }
-
-public:
-  void postorder_walk(Node *root) {
-    if (root == nullptr)
-      return;
-    if (root->left != nullptr)
-      postorder_walk(root->left);
-    if (root->right != nullptr)
-      postorder_walk(root->right);
-    cout << root->value << " ";
   }
 
 public:
@@ -96,7 +74,7 @@ public:
   Node *replace_node_in_parent(Node *root, Node *child) {}
 
 public:
-  void delete_node(Node *&root, T value) {
+  void delete_node(Node *root, T value) {
 
     // check nullptr.
     if (root == nullptr)
