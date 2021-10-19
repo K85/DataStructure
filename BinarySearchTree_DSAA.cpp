@@ -53,7 +53,7 @@ public:
     // construct target node.
     Node *target_node = new Node(value);
 
-    // find insert position.
+    // locate insert position.
     Node *p = root;
     Node *pp = nullptr; // record the parent of p
     while (p != nullptr) {
