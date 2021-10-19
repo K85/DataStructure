@@ -85,23 +85,23 @@ public:
     Node * LL(Node * node) {
 
       // prepare nodes.
-      Node * node_left = node->left_child;
-      Node * node_left_right = node->left_child->right;
+      Node * node$left = node->left_child;
+      Node * node$left$right = node->left_child->right;
       Node * node_parent = node->parent; 
 
       // update pointers.
-      node->left_child = node_left_right;
-      if (node_left_right != nullptr) {
-        node_left_right->parent = node;
+      node->left_child = node$left$right;
+      if (node$left$right != nullptr) {
+        node$left$right->parent = node;
       }
 
-      node_left->right_child = node;
-      node->parent = node_left;
+      node$left->right_child = node;
+      node->parent = node$left;
 
-      node == node_parent->left_child ? (node_parent->left_child = node_left) : (node_parent->right_child = node_left);
-      node_left->parent = node_parent;
+      node == node_parent->left_child ? (node_parent->left_child = node$left) : (node_parent->right_child = node$left);
+      node$left->parent = node_parent;
 
-      return node_left;
+      return node$left;
     }
 
   public:
@@ -113,23 +113,23 @@ public:
     Node * RR(Node * node){
 
       // prepare nodes.
-      Node * node_right = node->right_child;
-      Node * node_right_left = node->right_child->left;
+      Node * node$right = node->right_child;
+      Node * node$right$left = node->right_child->left;
       Node * node_parent = node->parent;
 
       // update pointers.
-      node->right_child = node_right_left;
-      if (node_right_left != nullptr) {
-        node_right_left->parent = node;
+      node->right_child = node$right$left;
+      if (node$right$left != nullptr) {
+        node$right$left->parent = node;
       }      
 
-      node_right->left_child = node;
-      node->parent = node_right; 
+      node$right->left_child = node;
+      node->parent = node$right; 
 
-      node == node_parent->left_child ? (node_parent->left_child = node_right) : (node_parent->right_child = node_right);
-      node_right->parent = node_parent;
+      node == node_parent->left_child ? (node_parent->left_child = node$right) : (node_parent->right_child = node$right);
+      node$right->parent = node_parent;
 
-      return node_right;
+      return node$right;
     }
 
   public:
@@ -145,7 +145,6 @@ public:
   public:
     void rebalance(Node * node) {
 
-
       // should rebalane ?
       Node * min_imbalance_tree_root = min_imbalance_tree(node);
       if (min_imbalance_tree_root == nullptr) return;
@@ -155,20 +154,19 @@ public:
 
       // LL case
       if (BF > 1 && balance_factor(min_imbalance_tree_root->left_child) > 0) {
-
+        LL(node);
       } else if(BF > 1 && balance_factor(min_imbalance_tree_root->left_child) < 0) {
         // LR case
-
+        LR(node);
       } else if (BF < -1 && balance_factor(min_imbalance_tree_root->right_child < 0)) {
         // RR case
-
+        RR(node);
       } else if (BF < -1 && balance_factor(min_imbalance_tree_root->right_child > 0)) {
         // RL case
-
+        RL(node);
       }
 
     }
-
 
     // TODO avl delete.
 
