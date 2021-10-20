@@ -87,7 +87,7 @@ public:
       // prepare nodes.
       Node * node$left = node->left_child;
       Node * node$left$right = node->left_child->right;
-      Node * node_parent = node->parent; 
+      Node * node$parent = node->parent; 
 
       // update pointers.
       node->left_child = node$left$right;
@@ -98,8 +98,8 @@ public:
       node$left->right_child = node;
       node->parent = node$left;
 
-      node == node_parent->left_child ? (node_parent->left_child = node$left) : (node_parent->right_child = node$left);
-      node$left->parent = node_parent;
+      node == node$parent->left_child ? (node$parent->left_child = node$left) : (node$parent->right_child = node$left);
+      node$left->parent = node$parent;
 
       return node$left;
     }
@@ -115,7 +115,7 @@ public:
       // prepare nodes.
       Node * node$right = node->right_child;
       Node * node$right$left = node->right_child->left;
-      Node * node_parent = node->parent;
+      Node * node$parent = node->parent;
 
       // update pointers.
       node->right_child = node$right$left;
@@ -126,8 +126,8 @@ public:
       node$right->left_child = node;
       node->parent = node$right; 
 
-      node == node_parent->left_child ? (node_parent->left_child = node$right) : (node_parent->right_child = node$right);
-      node$right->parent = node_parent;
+      node == node$parent->left_child ? (node$parent->left_child = node$right) : (node$parent->right_child = node$right);
+      node$right->parent = node$parent;
 
       return node$right;
     }
