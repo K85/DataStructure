@@ -142,6 +142,7 @@ public:
       while (node != nullptr && abs(balance_factor(node) != 2)) node = node->parent;
     }
 
+
   public:
     void rebalance(Node * node) {
 
