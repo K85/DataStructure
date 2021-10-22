@@ -48,7 +48,7 @@ int main() {
     // filter visited.
     if (visited[cur_position_i][cur_position_j]) continue;
     visited[cur_position_i][cur_position_j] = 1;
-
+    
     // try all directions. (totally 4 directions.)
     int next_position_health;
     if (cur_position_j != cols - 1 && cur_position_health >= M[cur_position_i][cur_position_j + 1]) {
