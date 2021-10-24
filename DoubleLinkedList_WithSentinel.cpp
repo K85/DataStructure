@@ -2,141 +2,139 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <vector>
+
 #pragma warning (disable:4996)
 
 using namespace std;
 
-// åŒå‘é“¾è¡¨
+// Ë«ÏòÁ´±í
 template<typename T>
 class DoublyLinkedList {
 
-	// å®šä¹‰ èŠ‚ç‚¹Node
-	struct Node {
-		// æ•°æ®åŸŸ: å…³é”®å­—
-		T key;
-		// æŒ‡é’ˆåŸŸ: æŒ‡å‘ä¸Šä¸€ä¸ªèŠ‚ç‚¹ å’Œ ä¸‹ä¸€ä¸ªèŠ‚ç‚¹çš„æŒ‡é’ˆ.
-		Node * prev, *next;
+    // ¶¨Òå ½ÚµãNode
+    struct Node {
+        // Êı¾İÓò: ¹Ø¼ü×Ö
+        T key;
+        // Ö¸ÕëÓò: Ö¸ÏòÉÏÒ»¸ö½Úµã ºÍ ÏÂÒ»¸ö½ÚµãµÄÖ¸Õë.
+        Node *prev, *next;
 
-	};
+    };
 
-	// å“¨å…µèŠ‚ç‚¹: å“¨å…µèŠ‚ç‚¹æ‹…ä»»å¤´èŠ‚ç‚¹çš„ä»»åŠ¡, ä½†æ˜¯å“¨å…µèŠ‚ç‚¹æœ¬èº«å¹¶ä¸å­˜å‚¨å…³é”®å­—, ç¬¬ä¸€ä¸ªå…ƒç´ åº”è¯¥æ˜¯NIL->nextæ¥å­˜å‚¨
-	Node * NIL;
+    // ÉÚ±ø½Úµã: ÉÚ±ø½Úµãµ£ÈÎÍ·½ÚµãµÄÈÎÎñ, µ«ÊÇÉÚ±ø½Úµã±¾Éí²¢²»´æ´¢¹Ø¼ü×Ö, µÚÒ»¸öÔªËØÓ¦¸ÃÊÇNIL->nextÀ´´æ´¢
+    Node *NIL;
 
 private:
-	void init() {
-		// åˆå§‹åŒ–å“¨å…µèŠ‚ç‚¹: é“¾è¡¨ä¸­æ²¡æœ‰ä»»ä½•å…ƒç´ æ—¶, å“¨å…µèŠ‚ç‚¹çš„nextå’Œprevå‡æŒ‡å‘NILè‡ªèº«.
-		NIL = (Node *)malloc(sizeof(Node));
-		NIL->next = NIL;
-		NIL->prev = NIL;
-	}
+    void init() {
+        // ³õÊ¼»¯ÉÚ±ø½Úµã: Á´±íÖĞÃ»ÓĞÈÎºÎÔªËØÊ±, ÉÚ±ø½ÚµãµÄnextºÍprev¾ùÖ¸ÏòNIL×ÔÉí.
+        NIL = (Node *) malloc(sizeof(Node));
+        NIL->next = NIL;
+        NIL->prev = NIL;
+    }
 
 public:
-	DoublyLinkedList() {
-		init();
-	}
+    DoublyLinkedList() {
+        init();
+    }
 
-	/* è¯¥æ–¹æ³•å°† æ–°èŠ‚ç‚¹ æ’å…¥åˆ° åŒç«¯é“¾è¡¨çš„å¤´éƒ¨ */
+    /* ¸Ã·½·¨½« ĞÂ½Úµã ²åÈëµ½ Ë«¶ËÁ´±íµÄÍ·²¿ */
 public:
-	void insertNode(T key) {
+    void insertNode(T key) {
 
-		// åˆ›å»ºæ–°çš„èŠ‚ç‚¹.
-		Node * x = (Node *)malloc(sizeof(Node));
-		x->key = key;
+        // ´´½¨ĞÂµÄ½Úµã.
+        Node *x = (Node *) malloc(sizeof(Node));
+        x->key = key;
 
-		/* åœ¨ å¤´èŠ‚ç‚¹ å æ·»åŠ å…ƒç´  */
+        /* ÔÚ Í·½Úµã ºó Ìí¼ÓÔªËØ */
 
-		// è¿æ¥ æ–°èŠ‚ç‚¹x å’Œ å¤´èŠ‚ç‚¹
-		x->next = NIL->next;
-		NIL->next->prev = x;
+        // Á¬½Ó ĞÂ½Úµãx ºÍ Í·½Úµã
+        x->next = NIL->next;
+        NIL->next->prev = x;
 
-		// è¿æ¥ NILèŠ‚ç‚¹ å’Œ æ–°èŠ‚ç‚¹
-		NIL->next = x;
-		x->prev = NIL;
+        // Á¬½Ó NIL½Úµã ºÍ ĞÂ½Úµã
+        NIL->next = x;
+        x->prev = NIL;
 
-	}
+    }
 
-/* ä»å¤´èŠ‚ç‚¹å¼€å§‹, åœ¨æ•´ä¸ªé“¾è¡¨ä¸­æœç´¢æŒ‡å®šå…ƒç´  */
+/* ´ÓÍ·½Úµã¿ªÊ¼, ÔÚÕû¸öÁ´±íÖĞËÑË÷Ö¸¶¨ÔªËØ */
 public:
-	Node * listSearch(T key) {
-		// ä» å¤´èŠ‚ç‚¹ åé¢çš„å…ƒç´ å¼€å§‹è®¿é—®.
-		Node * cur = NIL->next;
+    Node *listSearch(T key) {
+        // ´Ó Í·½Úµã ºóÃæµÄÔªËØ¿ªÊ¼·ÃÎÊ.
+        Node *cur = NIL->next;
 
-		while (cur != NIL && cur->key != key) {
-			cur = cur->next;
-		}
+        while (cur != NIL && cur->key != key) {
+            cur = cur->next;
+        }
 
-		return cur;
-	}
+        return cur;
+    }
 
-	/* åœ¨åŒå‘é“¾è¡¨ä¸­åˆ é™¤å…ƒç´  */
+    /* ÔÚË«ÏòÁ´±íÖĞÉ¾³ıÔªËØ */
 public:
-	void deleteNode(Node * t) {
+    void deleteNode(Node *t) {
 
-		// å¦‚æœè¢«åˆ é™¤çš„å…ƒç´ æ˜¯å“¨å…µèŠ‚ç‚¹, åˆ™ä¸è¿›è¡Œå¤„ç†.
-		if (t == NIL) return;
+        // Èç¹û±»É¾³ıµÄÔªËØÊÇÉÚ±ø½Úµã, Ôò²»½øĞĞ´¦Àí.
+        if (t == NIL) return;
 
-		// å°†èŠ‚ç‚¹tçš„å‰åèŠ‚ç‚¹ç›´æ¥ç›¸è¿.
-		t->prev->next = t->next;
-		t->next->prev = t->prev;
+        // ½«½ÚµãtµÄÇ°ºó½ÚµãÖ±½ÓÏàÁ¬.
+        t->prev->next = t->next;
+        t->next->prev = t->prev;
 
-		// é‡Šæ”¾ è¢«åˆ é™¤èŠ‚ç‚¹t çš„å†…å­˜
-		free(t);
+        // ÊÍ·Å ±»É¾³ı½Úµãt µÄÄÚ´æ
+        free(t);
 
-	}
+    }
 
-	/* æ‰“å°å½“å‰åŒç«¯é“¾è¡¨çš„æƒ…å†µ */
+    /* ´òÓ¡µ±Ç°Ë«¶ËÁ´±íµÄÇé¿ö */
 public:
-	void printList() {
+    void printList() {
 
-		Node * cur = NIL->next;
-		int isf = 0;
+        Node *cur = NIL->next;
+        int isf = 0;
 
-		while (true) {
+        while (true) {
 
-			// é‡æ–°é‡åˆ°å¤´èŠ‚ç‚¹åˆ™ç»ˆæ­¢éå†
-			if (cur == NIL) break;
+            // ÖØĞÂÓöµ½Í·½ÚµãÔòÖÕÖ¹±éÀú
+            if (cur == NIL) break;
 
-			if (isf++ > 0) printf(" ");
-			printf("%d", cur->key);
+            if (isf++ > 0) printf(" ");
+            printf("%d", cur->key);
 
-			// ç»§ç»­è·å– å½“å‰èŠ‚ç‚¹ çš„ ä¸‹ä¸€ä¸ªèŠ‚ç‚¹
-			cur = cur->next;
-		}
+            // ¼ÌĞø»ñÈ¡ µ±Ç°½Úµã µÄ ÏÂÒ»¸ö½Úµã
+            cur = cur->next;
+        }
 
-		printf("\n");
+        printf("\n");
 
-	}
+    }
 
-	/* åˆ é™¤é“¾è¡¨çš„ç¬¬ä¸€ä¸ªå…ƒç´  */
+    /* É¾³ıÁ´±íµÄµÚÒ»¸öÔªËØ */
 public:
-	void deleteFirst() {
-		deleteNode(NIL->next);
-	}
+    void deleteFirst() {
+        deleteNode(NIL->next);
+    }
 
-	/* åˆ é™¤é“¾è¡¨çš„æœ€åä¸€ä¸ªå…ƒç´  */
+    /* É¾³ıÁ´±íµÄ×îºóÒ»¸öÔªËØ */
 public:
-	void deleteLast() {
-		deleteNode(NIL->prev);
-	}
+    void deleteLast() {
+        deleteNode(NIL->prev);
+    }
 
-	/*åˆ é™¤ç¬¬ä¸€ä¸ªæŒ‡å®šå…³é”®å­—çš„èŠ‚ç‚¹*/
+    /*É¾³ıµÚÒ»¸öÖ¸¶¨¹Ø¼ü×ÖµÄ½Úµã*/
 public:
-	void deleteKeyFirst(int key) {
-		deleteNode(listSearch(key));
-	}
+    void deleteKeyFirst(int key) {
+        deleteNode(listSearch(key));
+    }
 
 };
 
 
-
 int main() {
 
-	DoublyLinkedList<int> dlst;
+    DoublyLinkedList<int> dlst;
 
-	dlst.insertNode(1);
-	dlst.insertNode(2);
-	dlst.insertNode(3);
-
-	dlst.printList();
-
+    dlst.insertNode(1);
+    dlst.insertNode(2);
+    dlst.insertNode(3);
+    dlst.printList();
 }
