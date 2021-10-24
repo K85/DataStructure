@@ -14,5 +14,6 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.swp
+*.exe
 temp*
 cmake-build-debug
