@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cstddef>
 #include <cstdio>
 #include <iostream>
 #include <vector>
@@ -16,54 +15,96 @@ enum Color { RED, BLACK };
 
 template <typename T> class RedBlackTree {
 
+public:
     class Node {
     public:
         T value;
         Color color;
         Node *parent;
-        Node *left;
-        Node *right;
+        Node *left_child;
+        Node *right_child;
 
+        // Constructors.
     public:
-        Node(T value, Color color, Node *parent, Node *left, Node *right)
-                : value(value), color(color), parent(parent), left(left), right(right) {
+        Node(T value, Color color, Node *parent, Node *left_child, Node *right)
+                : value(value), color(color), parent(parent), left_child(left_child), right_child(right) {
         }
 
+        // Node Relations Aux Functinos. (Some safe functions.)
     public:
         Node(T value, Color color)
                 : Node(value, color, nullptr, nullptr, nullptr) {}
 
     public:
-        Node *grand_parent() { return this->parent->parent; }
-
-    public:
-        Node *uncle() { return this->parent->sibling(); }
-
-    public:
-        Node *sibling() {
-            return this == this->parent->left ? this->parent->right
-                                              : this->parent->left;
+        static bool IS_NULL(Node * node)  {
+            if (CHECK_NULL_NODE_WITH_NIL_NODE_FLAG) {
+                return node->left_child == node->right_child; // PROMISE: all nodes inside 1 tree use the same NIL node.
+            } else return node == nullptr;
         }
+
+    public:
+        Node * P() {
+            if (IS_NULL(this)) return nullptr;
+            return this->parent;
+        }
+
+
+    public:
+        Node *GP() {
+            return this->P()->P();
+        }
+
+    public:
+        Node *U() {
+            if(IS_NULL(this->GP())) return nullptr;
+            return this->P()->S();
+        }
+
+    public:
+        Node *S() {
+            if (IS_NULL(this->P())) return nullptr;
+            return this == this->P()->left_child ? this->P()->right_child
+                                                    : this->P()->left_child;
+        }
+
     };
 
 public:
-    Node *root = nullptr;
-    // rank: 从 该root节点 到 叶子节点 路径中 黑色指针的数量
-    // 结论: 从 path(root, leaf).length <= 2 * rank(root);
-    // 结论: h(root) <= 2 * rank(root)
-    // 结论: r <= log2(n + 1)
-public:
-    int rank(Node *root) { return -1; }
+    Node *ROOT = nullptr; // use ROOT instead of root to avoid ambiguity.
+    static const bool CHECK_NULL_NODE_WITH_NIL_NODE_FLAG = false;
+
 
 public:
     void inorder_walk(Node *root) {
         if (root == nullptr)
             return;
-        if (root->left != nullptr)
-            inorder_walk(root->left);
+        if (root->left_child != nullptr)
+            inorder_walk(root->left_child);
+        cout << root->value << "(" << root->color << ") ";
+        if (root->right_child != nullptr)
+            inorder_walk(root->right_child);
+    }
+
+public:
+    void preorder_walk(Node *root) {
+        if (root == nullptr)
+            return;
         cout << root->value << " ";
-        if (root->right != nullptr)
-            inorder_walk(root->right);
+        if (root->left_child != nullptr)
+            preorder_walk(root->left_child);
+        if (root->right_child != nullptr)
+            preorder_walk(root->right_child);
+    }
+
+public:
+    void postorder_walk(Node *root) {
+        if (root == nullptr)
+            return;
+        if (root->left_child != nullptr)
+            postorder_walk(root->left_child);
+        cout << root->value << " ";
+        if (root->right_child != nullptr)
+            postorder_walk(root->right_child);
     }
 
 public:
@@ -72,99 +113,102 @@ public:
             return nullptr;
         if (value == root->value)
             return root;
-        return search_node(value < root->value ? root->left : root->right, value);
+        return search_node(value < root->value ? root->left_child : root->right_child, value);
     }
 
 public:
-    void rotate_right(Node *p){
-        Node *gp = p->grand_parent();
-        Node *fa = p->parent;
-        Node *y = p->right;
-
-        fa->left= y;
-
-        if(y != nullptr)
-            y->parent = fa;
-        p->right= fa;
-        fa->parent = p;
-
-        if(root == fa)
-            root = p;
-        p->parent = gp;
-
-        if(gp != NULL){
-            if(gp->left== fa)
-                gp->left= p;
-            else
-                gp->right= p;
-        }
-
-    }
-
-public:
-    void rotate_left(Node *p){
-        if(p->parent == NULL){
-            root = p;
+    void rotate_left(Node * pivot) {
+        if (pivot->parent == nullptr) {
+            this->ROOT = pivot;
             return;
         }
-        Node *gp = p->grand_parent();
-        Node *fa = p->parent;
-        Node *y = p->left;
 
-        fa->right= y;
+        // prepare
+        Node * pivot$grand_parent = pivot->GP();
+        Node * pivot$father = pivot->parent;
+        Node * pivot$left = pivot->left_child;
 
-        if(y != nullptr)
-            y->parent = fa;
-        p->left= fa;
-        fa->parent = p;
+        // relink
+        pivot$father->right_child = pivot$left;
+        if (pivot$left != nullptr)
+            pivot$left->parent = pivot$father;
 
-        if(root == fa)
-            root = p;
-        p->parent = gp;
+        pivot->left_child = pivot$father;
+        pivot$father->parent = pivot;
 
-        if(gp != NULL){
-            if(gp->left== fa)
-                gp->left= p;
-            else
-                gp->right= p;
+        if (this->ROOT == pivot$father)
+            this->ROOT = pivot;
+        pivot->parent = pivot$grand_parent;
+        if (pivot$grand_parent != nullptr) {
+            (pivot$grand_parent->left_child == pivot$father) ? (pivot$grand_parent->left_child = pivot) :
+            (pivot$grand_parent->right_child = pivot);
         }
-    }
-public:
-    Color get_color(Node *root) {
-        if (root == nullptr)
-            return Color::BLACK;
-        return root->color;
     }
 
 public:
-    void insert_node(Node *&root, T value) {
-        // construct target node.
-        Node *target = new Node(value, Color::RED);
+    void rotate_right(Node * pivot) {
+        Node * pivot$grande_parent = pivot->GP();
+        Node * pivot$father = pivot->parent;
+        Node * pivot$right = pivot->right_child;
 
-        // find insert position.
-        Node *target_parent = nullptr;
-        Node *aux_node = root;
-        while (aux_node != nullptr) {
-            target_parent = aux_node;
-            target->value < aux_node->value ? aux_node = aux_node->left
-                                            : aux_node = aux_node->right;
+        pivot$father->left_child = pivot$right;
+        if (pivot$right != nullptr)
+            pivot$right->parent = pivot$father;
+
+        pivot->right_child = pivot$father;
+        pivot$father->parent = pivot;
+
+        if (this->ROOT == pivot$father) this->ROOT = pivot;
+        pivot->parent = pivot$grande_parent;
+        if (pivot$grande_parent != nullptr) {
+            (pivot$grande_parent->left_child == pivot$father) ? (pivot$grande_parent->left_child = pivot) :
+            (pivot$grande_parent->right_child = pivot);
+        }
+    }
+
+public:
+    void insert_node(Node *root, T value) {
+
+        // Case: empty tree
+        if (root == nullptr) {
+            this->ROOT = new Node(value, Color::BLACK);
+            return;
         }
 
-        // insert target node into y'left or right
-        target->parent = target_parent;
-        if (target_parent == nullptr)
-            root = target;
-        else
-            target->value < target_parent->value ? target_parent->left = target
-                                                 : target_parent->right = target;
+        // Case: not empty tree
+       if (value < root->value)  {
+           if (root->left_child != nullptr) insert_node(root->left_child, value);
+           else {
+               Node *target_node = new Node(value, Color::RED);
 
-        // rebalance
-        insert_case1(target);
+               // link
+               target_node->parent = root;
+               root->left_child = new Node(value, Color::RED);// NODE: black node is EASY to rebalance.
+
+               // rebalance
+               insert_case1(target_node);
+           }
+       } else if(value > root->value) {
+           if (root->right_child != nullptr) insert_node(root->right_child, value);
+           else {
+
+               Node *target_node = new Node(value, Color::RED);
+
+               // link
+               target_node->parent = root;
+               root->right_child = target_node;
+
+               // rebalance
+               insert_case1(target_node);
+           }
+       }
+
     }
 
 public:
     void insert_case1(Node *n) {
-        printf("insert_case1\n");
+        // CASE: empty tree ?
+        // PROMISE: n is not null (since n is the target node)
         if (n->parent == nullptr)
             n->color = Color::BLACK;
         else
@@ -173,7 +217,8 @@ public:
 
 public:
     void insert_case2(Node *n) {
-        printf("insert_case2\n");
+        // CASE: target node's parent's color is BLACK ?
+        // PROMISE: n->parent is not null.
         if (n->parent->color == Color::BLACK)
             return;
         else
@@ -182,27 +227,27 @@ public:
 
 public:
     void insert_case3(Node *n) {
-        printf("insert_case3\n");
-        if (n->uncle() != nullptr && n->uncle()->color == Color::RED) {
+        // PROMISE: target node's parent's color is RED.
+        if (n->U() != nullptr && n->U()->color == Color::RED) {
 
             n->parent->color = Color::BLACK;
-            n->uncle()->color = Color::BLACK;
-            n->grand_parent()->color = Color::RED;
+            n->U()->color = Color::BLACK;
+            n->GP()->color = Color::RED;
 
-            insert_case1(n->grand_parent());
+            insert_case1(n->GP());
         } else
             insert_case4(n);
     }
 
 public:
     void insert_case4(Node *n) {
-        printf("insert_case4\n");
-        if (n == n->parent->right && n->parent == n->grand_parent()->left) {
+        // PROMISE: target node's uncle's color is BLACK
+        if (n == n->parent->right_child && n->parent == n->GP()->left_child) {
             rotate_left(n);
-            n = n->left;
-        } else if (n == n->parent->left && n->parent == n->grand_parent()->right) {
+            n = n->left_child;
+        } else if (n == n->parent->left_child && n->parent == n->GP()->right_child) {
             rotate_right(n);
-            n = n->right;
+            n = n->right_child;
         }
 
         insert_case5(n);
@@ -210,33 +255,32 @@ public:
 
 public:
     void insert_case5(Node *n) {
-        printf("insert_case5\n");
+        // NOTE: rotate according to n
         n->parent->color = Color::BLACK;
-        n->grand_parent()->color = Color::RED;
-        if (n == n->parent->left && n->parent == n->grand_parent()->left) {
+        n->GP()->color = Color::RED;
+        if (n == n->parent->left_child && n->parent == n->GP()->left_child) {
             rotate_right(n->parent);
-        } else {
+        } else { // NOTE: n == n->parent->right_child && n->parent == n->GP()->right_child
             rotate_left(n->parent);
         }
     }
 
 public:
     void delete_case1(Node *n) {
-        printf("delete_case1\n");
-        if (n->parent != nullptr)
+
+        if (n->P() != nullptr)
             delete_case2(n);
     }
 
 public:
     void delete_case2(Node *n) {
-        printf("delete_case2\n");
-        Node *s = n->sibling();
+        Node *s = n->S();
 
         if (s->color == Color::RED) {
             n->parent->color = Color::RED;
             s->color = Color::BLACK;
 
-            if (n == n->parent->left) {
+            if (n == n->parent->left_child) {
                 rotate_left(n->parent);
             } else
                 rotate_right(n->parent);
@@ -247,11 +291,10 @@ public:
 
 public:
     void delete_case3(Node *n) {
-        printf("delete_case3\n");
-        Node *s = n->sibling();
+        Node *s = n->S();
 
         if ((n->parent->color == Color::BLACK) && (s->color == Color::BLACK) &&
-            (s->left->color == Color::BLACK) && (s->right->color == Color::BLACK)) {
+            (s->left_child->color == Color::BLACK) && (s->right_child->color == Color::BLACK)) {
             s->color = Color::RED;
             delete_case1(n->parent);
         } else
@@ -260,10 +303,9 @@ public:
 
 public:
     void delete_case4(Node *n) {
-        printf("delete_case4\n");
-        Node *s = n->sibling();
+        Node *s = n->S();
         if ((n->parent->color == Color::RED) && (s->color == Color::BLACK) &&
-            (s->left->color == Color::BLACK) && (s->right->color == Color::BLACK)) {
+            (s->left_child->color == Color::BLACK) && (s->right_child->color == Color::BLACK)) {
             s->color = Color::RED;
             n->parent->color = Color::BLACK;
         } else
@@ -272,19 +314,18 @@ public:
 
 public:
     void delete_case5(Node *n) {
-        printf("delete_case5\n");
-        Node *s = n->sibling();
+        Node *s = n->S();
 
         if (s->color == Color::BLACK) {
-            if ((n == n->parent->left) && (s->right->color == Color::BLACK) &&
-                (s->left->color == Color::RED)) {
+            if ((n == n->parent->left_child) && (s->right_child->color == Color::BLACK) &&
+                (s->left_child->color == Color::RED)) {
                 s->color = Color::RED;
-                s->left->color = Color::BLACK;
+                s->left_child->color = Color::BLACK;
                 rotate_right(s);
-            } else if ((n == n->parent->right) && (s->left->color == BLACK) &&
-                       (s->right->color == RED)) {
+            } else if ((n == n->parent->right_child) && (s->left_child->color == BLACK) &&
+                       (s->right_child->color == RED)) {
                 s->color = RED;
-                s->right->color = BLACK;
+                s->right_child->color = BLACK;
                 rotate_left(s);
             }
         }
@@ -293,175 +334,117 @@ public:
 
 public:
     void delete_case6(Node *n) {
-        printf("delete_case6\n");
-        Node *s = n->sibling();
+        Node *s = n->S();
         s->color = n->parent->color;
         n->parent->color = Color::BLACK;
 
-        if (n == n->parent->left) {
-            s->right->color = Color::BLACK;
+        if (n == n->parent->left_child) {
+            s->right_child->color = Color::BLACK;
             rotate_left(n->parent);
         } else {
-            s->left->color = Color::BLACK;
+            s->left_child->color = Color::BLACK;
             rotate_right(n->parent);
         }
     }
 
+
 public:
     Node *min_node(Node *root) {
-        while (root->left != nullptr)
-            root = root->left;
+        while (root->left_child != nullptr)
+            root = root->left_child;
         return root;
     }
 
 public:
-    Node *delete_min(Node *root) {
-        if (root->left == nullptr)
-            return root->right;
-        root->left = delete_min(root->left);
+    Node * max_node(Node * root) {
+        while(root->right_child != nullptr) root = root->right_child;
         return root;
-    }
-
-public:
-    bool delete_value(T value){
-        return delete_node(this->root, value);
     }
 
 public:
     void delete_tree(Node * root) {
         if (root == nullptr) return;
-        delete_tree(root->left);
-        delete_tree(root->right);
+        delete_tree(root->left_child);
+        delete_tree(root->right_child);
         delete root;
     }
 
-
-
 public:
-    void replace_node(Node * node, Node * child) {
-        // case: the tree is only 1 node.
-        if (node == this->root && node->left == nullptr && node->right == nullptr) {
-            this->root = nullptr;
+    void delete_node_with_at_most_one_child(Node * node) {
+
+        /* Case: only 1 node's tree. */
+        if (node->parent == nullptr && node->left_child == nullptr && node->right_child == nullptr) {
+            this->ROOT = nullptr;
             return;
         }
 
-        // link parents
-        if (node->parent->left == node) {
-            node->parent->left = child;
-        } else {
-            node->parent->right = child;
-        }
-        child->parent = node->parent;
-    }
+        /* Case: node is the root of RBT? */
+        // select the only only_child of node.
+        Node * only_child = node->left_child != nullptr ? node->left_child : node->right_child;
 
-
-public:
-    void delete_only_child(Node * node) {
-
-        // find the only child of node.
-        Node * node_child = node->left == nullptr ? node->right : node->left;
-
-        if(node->parent == nullptr && node->left== nullptr && node->right== nullptr){
-            node = nullptr;
-            this->root = node;
-            return;
-        }
-
-        // replace node and the only child of node.
-//        replace_node(node, node_child);
-        if(node->parent == nullptr){
-            delete  node;
-            node_child->parent = nullptr;
-            this->root = node_child;
-            this->root->color = Color::BLACK;
-            return;
-        }
-
-        if(node->parent->left== node){
-           node->parent->left= node_child;
-        } else {
-            node->parent->right= node_child;
-        }
-
-        // is node_child nullptr ?
-        // TODO delete 
-        if (node_child != nullptr) {
-            node_child->parent = node->parent;
-
-            // color
-            if (node->color == Color::BLACK) {
-                if (node_child->color == Color::RED) node_child->color = Color::BLACK;
-                else delete_case1(node_child);
-            }
-
-            // free node
+        if (node->parent == nullptr) {
+            // free old ROOT.
             delete node;
+
+            // set new ROOT.
+            only_child->parent = nullptr;
+            this->ROOT = only_child;
+            this->ROOT->color = Color::BLACK;
+            return;
         }
 
+        // re-link and re-color
+        if (node->parent->left_child == node) { // NOTE: just like we delete a node in DLL
+            node->parent->left_child = only_child;
+        } else {
+            node->parent->right_child = only_child;
+        }
+
+        if (only_child != nullptr) {
+            // ATTENTION: prevent npe.
+            only_child->parent = node->parent;
+        }
+
+        if (node->color == Color::BLACK) {
+            // NOTE: it's just like you cover the value FROM only_child TO node. (and then delete only_child)
+            if (only_child != nullptr && only_child->color == Color::RED) only_child->color = Color::BLACK;
+            else delete_case1(only_child);
+        }
+
+        // free
+        free(node);
     }
 
+    // return: true if delete successfully.
 public:
-  void rotate_left_V2(Node *root) {
-    Node *root_right = root->right;
-    Node *root_right_left = root->right->left;
-    Node *root_parent = root->parent;
+    bool delete_node(Node * root, T value) {
 
-    root_right->left = root;
-    root_right->parent = root_parent; // link parent
-    root->right = root_right_left;
-
-    // link parent
-    if (root_parent->left == root) {
-      root_parent->left = root_right;
-    } else {
-      root_parent->right = root_right;
-    }
-  }
-
-public:
-  void rotate_right_V2(Node *root) {
-    Node *root_left = root->left;
-    Node *root_left_right = root->left->right;
-    Node *root_parent = root->parent;
-
-    root_left->right = root;
-    root_left->parent = root_parent; // link parent.
-    root->left = root_left_right;
-
-    // link parent.
-    if (root_parent->left == root) {
-      root_parent->left = root_left;
-    } else {
-      root_parent->right = root_left;
-    }
-  }
-
-public:
-    void delete_node(Node * root, T value) {
-        // can't locate delete position.
-        if (root == nullptr) return ;
-
-
-        // locate delete position.
+        // locate delete node.
         if (value < root->value) {
-            delete_node(root->left, value);
+            if (root->left_child == nullptr) return false;
+            return delete_node(root->left_child, value);
         } else if (value > root->value) {
-            delete_node(root->right, value);
-        } else if (value == root->value) {
+            if (root->right_child == nullptr) return false;
+            return delete_node(root->right_child, value);
+        } else if(value == root->value) {
 
-            // why check right ?
-            if (root->right == nullptr) {
-                delete_only_child(root);
-                return;
+            // Case1: has at most 2 childs?
+            if (root->right_child == nullptr
+            || root->left_child == nullptr) {
+                delete_node_with_at_most_one_child(root);
+                return true;
             }
 
-            Node * smallest = min_node(root->right);
-            swap(root->value, smallest->value);
-
-            delete_only_child(smallest);
-        }
-
+            // Case2: has 2 childs.
+            // swap the value between delete node and most node (In fact, we just cover value and convert delete case.)
+            Node * most_node = max_node(root->left_child);
+            root->value = most_node->value;
+            most_node->value = 0xDEAD;
+            delete_node_with_at_most_one_child(most_node);
+            return true;
+        } else return false;
     }
+
 
 
 };
@@ -471,16 +454,24 @@ int main() {
 
     // construct rbt and add elements.
     RedBlackTree<int> rbt;
-    rbt.insert_node(rbt.root, 400);
-    rbt.insert_node(rbt.root, 300);
-    rbt.insert_node(rbt.root, 100);
-    rbt.insert_node(rbt.root, 200);
+    rbt.insert_node(rbt.ROOT, 1000);
+    rbt.insert_node(rbt.ROOT, 2000);
+    rbt.insert_node(rbt.ROOT, 3000);
+    rbt.insert_node(rbt.ROOT, 4000);
+    rbt.insert_node(rbt.ROOT, 5000);
+    rbt.insert_node(rbt.ROOT, 6000);
+    rbt.insert_node(rbt.ROOT, 7000);
+    rbt.insert_node(rbt.ROOT, 8000);
+    rbt.insert_node(rbt.ROOT, 9000);
 
-    rbt.inorder_walk(rbt.root);
+    printf("After inserts: \n");
+    rbt.inorder_walk(rbt.ROOT);
     printf("\n");
 
     // delete elements.
-    rbt.delete_node(rbt.root, 200);
-    rbt.inorder_walk(rbt.root);
+    rbt.delete_node(rbt.ROOT, 4000);
+    rbt.delete_node(rbt.ROOT, 1000);
+    rbt.delete_node(rbt.ROOT, 8000);
     return 0;
 }
+
