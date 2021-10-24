@@ -35,19 +35,18 @@ public:
         Node(T value, Color color)
                 : Node(value, color, nullptr, nullptr, nullptr) {}
 
-    public:
+    private:
         static bool IS_NULL(Node * node)  {
             if (CHECK_NULL_NODE_WITH_NIL_NODE_FLAG) {
                 return node->left_child == node->right_child; // PROMISE: all nodes inside 1 tree use the same NIL node.
             } else return node == nullptr;
         }
 
-    public:
+    private:
         Node * P() {
             if (IS_NULL(this)) return nullptr;
             return this->parent;
         }
-
 
     public:
         Node *GP() {
@@ -268,7 +267,7 @@ public:
 public:
     void delete_case1(Node *n) {
 
-        if (n->P() != nullptr)
+        if (n->parent != nullptr)
             delete_case2(n);
     }
 
