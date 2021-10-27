@@ -379,7 +379,7 @@ public:
 
         /* Case: node is the root of RBT? */
         // select the only only_child of node.
-        Node * only_child = node->left_child != nullptr ? node->left_child : node->right_child;
+        Node * only_child = node->left_child ? node->left_child : node->right_child;
 
         if (node->parent == nullptr) {
             // free old ROOT.
@@ -427,7 +427,7 @@ public:
             return delete_node(root->right_child, value);
         } else if(value == root->value) {
 
-            // Case1: has at most 2 childs?
+            // Case1: has at most 1 childs?
             if (root->right_child == nullptr
             || root->left_child == nullptr) {
                 delete_node_with_at_most_one_child(root);
