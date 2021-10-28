@@ -137,18 +137,17 @@ public:
       if (root->left_child != nullptr)
         insert_node(root->left_child, value);
       else {
+        // NOTE: please note that we should set new inserted node's height = 1
         auto *target_node = new BTreeNode(value);
 
         // link
         target_node->parent = root;
-        root->left_child =
-            target_node; // NODE: black node is EASY to rebalance.
+        root->left_child = target_node;
       }
     } else if (value > root->value) {
       if (root->right_child != nullptr)
         insert_node(root->right_child, value);
       else {
-
         auto *target_node = new BTreeNode(value);
 
         // link
