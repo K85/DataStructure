@@ -164,7 +164,7 @@ public:
 
           // link
           target_node->parent = root;
-          root->left_child = new BTreeNode(value, Color::RED);// NODE: black node is EASY to rebalance.
+          root->left_child = target_node;// NODE: black node is EASY to rebalance.
 
           // maintain
           insert_case1(target_node);

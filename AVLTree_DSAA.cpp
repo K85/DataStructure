@@ -45,80 +45,55 @@ public:
   }
 
 public:
-  BTreeNode *rotate_left(BTreeNode *end_node) {
+  BTreeNode *rotate_left(BTreeNode *end) {
+    // node orphan
+    BTreeNode *pivot = end->right_child;
+    end->right_child = pivot->left_child;
+    if (pivot->left_child)
+      pivot->left_child->parent = end;
+    // node pivot
+    pivot->parent = end->parent;
+    if (end->parent == nullptr)
+      this->ROOT = pivot;
+    else if (end == end->parent->left_child)
+      end->parent->left_child = pivot;
+    else
+      end->parent->right_child = pivot;
+    // node end
+    pivot->left_child = end;
+    end->parent = pivot;
 
-    // prepare nodes.
-    BTreeNode *end_node$right = end_node->right_child;
-    BTreeNode *end_node$right$left = end_node->right_child->left_child;
-    BTreeNode *end_node$parent = end_node->parent;
-
-    // update ROOT.
-    if (end_node == ROOT) {
-      ROOT = end_node$right;
-    }
-
-    // update pointers.
-    end_node->right_child = end_node$right$left;
-    if (end_node$right$left != nullptr) {
-      end_node$right$left->parent = end_node;
-    }
-
-    end_node$right->left_child = end_node;
-    end_node->parent = end_node$right;
-
-    if (end_node$parent != nullptr) {
-      end_node == end_node$parent->left_child
-          ? (end_node$parent->left_child = end_node$right)
-          : (end_node$parent->right_child = end_node$right);
-    }
-    end_node$right->parent = end_node$parent;
-
-    // update heights.
-    end_node->height =
-        max(height(end_node->left_child), height(end_node->right_child)) + 1;
-    end_node$right->height = max(height(end_node$right->left_child),
-                                 height(end_node$right->right_child)) +
-                             1;
-
-    return end_node$right;
+    // update height
+    end->height = max(height(end->left_child), height(end->right_child)) + 1;
+    pivot->height =
+        max(height(pivot->left_child), height(pivot->right_child)) + 1;
+    return pivot;
   }
 
 public:
-  BTreeNode *rotate_right(BTreeNode *end_node) {
-    // prepare nodes.
-    BTreeNode *end_node$left = end_node->left_child;
-    BTreeNode *end_node$left$right = end_node->left_child->right_child;
-    BTreeNode *end_node$parent = end_node->parent;
+  BTreeNode *rotate_right(BTreeNode *end) {
+    // node orphan
+    BTreeNode *pivot = end->left_child;
+    end->left_child = pivot->right_child;
+    if (pivot->right_child)
+      pivot->right_child->parent = end;
+    // node pivot
+    pivot->parent = end->parent;
+    if (end->parent == nullptr)
+      this->ROOT = pivot;
+    else if (end == end->parent->left_child)
+      end->parent->left_child = pivot;
+    else
+      end->parent->right_child = pivot;
+    // node end
+    pivot->right_child = end;
+    end->parent = pivot;
 
-    // update ROOT
-    if (end_node == ROOT) {
-      ROOT = end_node$left;
-    }
-
-    // update pointers.
-    end_node->left_child = end_node$left$right;
-    if (end_node$left$right != nullptr) {
-      end_node$left$right->parent = end_node;
-    }
-
-    end_node$left->right_child = end_node;
-    end_node->parent = end_node$left;
-
-    if (end_node$parent != nullptr) {
-      end_node == end_node$parent->left_child
-          ? (end_node$parent->left_child = end_node$left)
-          : (end_node$parent->right_child = end_node$left);
-    }
-    end_node$left->parent = end_node$parent;
-
-    // update heights.
-    end_node->height =
-        max(height(end_node->left_child), height(end_node->right_child)) + 1;
-    end_node$left->height = max(height(end_node$left->left_child),
-                                height(end_node$left->right_child)) +
-                            1;
-
-    return end_node$left;
+    // update height
+    end->height = max(height(end->left_child), height(end->right_child)) + 1;
+    pivot->height =
+        max(height(pivot->left_child), height(pivot->right_child)) + 1;
+    return pivot;
   }
 
 public:
