@@ -10,7 +10,7 @@ private:
 
 public:
   UnionFindSet(int capacity) {
-    capacity = capacity;
+    this->capacity = capacity;
     UF.resize(capacity);
     rank.resize(capacity, 1);
 

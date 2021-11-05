@@ -1,3 +1,4 @@
+// NOTE: rbt insert is ok, but delete has some problems !
 #include <algorithm>
 #include <cstdio>
 #include <iostream>
