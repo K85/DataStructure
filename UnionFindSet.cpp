@@ -20,8 +20,10 @@ public:
     rank.resize(capacity, 1);
 
     // UF starts from index 0.
-    for (int i = 0; i < capacity; i++)
+    for (int i = 0; i < capacity; i++) {
       UF[i] = i;
+      rank[i] = 1;
+    }
 
   }
 
