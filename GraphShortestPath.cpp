@@ -28,7 +28,6 @@ public:
     }
 
 public:
-// NOTE: this function can't solve when the graph only has 1 vertex !
     vector<int> sssp_dijkstra(vector<vector<int>> &G, int root) {
 
       /* init */
@@ -111,7 +110,7 @@ int main() {
 
   /* algo */
   GraphShortestPath gsp;
-  auto ans = gsp.sssp_bellman_ford(G, s);
+  auto ans = gsp.sssp_dijkstra(G, s);
   cout << ans[t];
   return 0;
 }
