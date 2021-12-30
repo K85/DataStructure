@@ -1,7 +1,5 @@
 #include <algorithm>
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <vector>
 
 using namespace std;
@@ -247,39 +245,37 @@ public:
     }
 
 public:
-    void quick_sort_stl(vector<T> &A, typename vector<T>::iterator L, typename vector<T>::iterator R) {
-      if (L == R) return;
+    void quick_sort_stl(vector<T> &A, typename vector<T>::iterator begin, typename vector<T>::iterator end) {
+      if (begin == end) return;
       trace(A);
-      T pivot = *L;
-      auto M = std::stable_partition(L, R, [pivot](T val) {
+      T pivot = *begin;
+      auto M = std::stable_partition(begin, end, [pivot](T val) {
           return pivot < val;
       });
-      quick_sort_stl(A, L, M);
-      quick_sort_stl(A, M + 1, R);
+      quick_sort_stl(A, begin, M);
+      quick_sort_stl(A, M + 1, end);
     }
 
 public:
-    int partition_front_back_pointer_method(vector<T> &A, int p, int r) {
-      int pivot = A[r];
-      int i = p - 1;
-      int j;
+    int partition_front_and_back_pointer_method(vector<T> &A, int p, int r) {
+      int pivot_index = r;
+      int pivot = A[pivot_index];
 
-      for (j = p; j < r; j++) {
+      int i = p - 1;
+      // NOTE: since we let pivot_index = r, so A[r] is the pivot element !
+      for (int j = i + 1; j < r; j++) {
         if (A[j] <= pivot) {
           i++;
           swap(A[i], A[j]);
         }
       }
-
       swap(A[i + 1], A[r]);
+      // i + 1 is the first element's index in the second group.
       return i + 1;
     }
 
 public:
     int partition_double_pointer_method(vector<T> &A, int p, int r) {
-      int pp = p;
-      int rr = r;
-
       // choose the first element as the pivot
       int pivot_index = p;
       while (p < r) {
@@ -287,30 +283,57 @@ public:
         while (p < r && A[p] <= A[pivot_index]) p++;
         swap(A[p], A[r]);
       }
-      swap(A[pivot_index], A[r]);
+      // NOTE: p == r
+      swap(A[pivot_index], A[p]);
       return p;
     }
 
 public:
-    void quick_sort_front_back_pointer_method(vector<T> &A, int p, int r) {
+    int partition_digging_hole_method(vector<T> &A, int p, int r) {
+      // choose the first element as the pivot
+      int pivot_index = p;
+      int pivot = A[pivot_index];
+      while (p < r) {
+        while (p < r && A[r] >= pivot) r--;
+        A[p] = A[r];
+        while (p < r && A[p] <= pivot) p++;
+        A[r] = A[p];
+      }
+      // NOTE: p == r
+      A[p] = pivot;
+      return p;
+    }
+
+public:
+    void quick_sort_front_and_back_pointer_method(vector<T> &A, int p, int r) {
       if (p < r) {
         // choose the first element as the pivot
-        int q = partition_front_back_pointer_method(A, p, r);
-        quick_sort_front_back_pointer_method(A, p, q - 1);
-        quick_sort_front_back_pointer_method(A, q + 1, r);
+        int q = partition_front_and_back_pointer_method(A, p, r);
+        quick_sort_front_and_back_pointer_method(A, p, q - 1);
+        quick_sort_front_and_back_pointer_method(A, q + 1, r);
       }
       trace(A);
     }
 
 public:
     void quick_sort_double_pointer_method(vector<T> &A, int p, int r) {
+      trace(A);
       if (p < r) {
         // choose the first element as the pivot
         int q = partition_double_pointer_method(A, p, r);
         quick_sort_double_pointer_method(A, p, q - 1);
         quick_sort_double_pointer_method(A, q + 1, r);
       }
-      trace(A);
+    }
+
+public:
+    void quick_sort_digging_hole_method(vector<int> &A, int p, int r) {
+      if (p < r) {
+        // choose the first element as pivot
+        int q = partition_digging_hole_method(A, p, r);
+        quick_sort_digging_hole_method(A, p, q - 1);
+        quick_sort_digging_hole_method(A, q + 1, r);
+      }
     }
 
 public:
@@ -342,16 +365,20 @@ public:
     }
 };
 
+
 int main() {
-  vector<int> A = {3, 6, 2, 8, 5, 9, 1, 4, 7};
+  vector<int> A;
+  int n;
+  cin >> n;
+
+  for (int i = 0; i < n; ++i) {
+    int num;
+    cin >> num;
+    A.push_back(num);
+  }
 
   SortAlgorithm<int> SA;
-
-  printf("before sort: \n");
+  SA.quick_sort_digging_hole_method(A, 0, A.size() - 1);
   SA.trace(A);
-
-  printf("after sort\n");
-  SA.quick_sort_double_pointer_method(A, 0, A.size() - 1);
-
   return 0;
 }
