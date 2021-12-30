@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <numeric>
 #include <functional>
+#include <limits.h>
 
 using namespace std;
 
@@ -60,13 +61,28 @@ public:
     }
 
 public:
+    vector<int> sssp_bellman_ford(vector<vector<int>> &G, int root) {
+      /* init */
+      vector<int> d = G[root];
+      d[root] = 0;
+
+      /* dp -> relaxation operation */
+      for (int i = 0; i < G.size(); ++i) {
+        for (int j = 0; j < G.size(); ++j) {
+          d[j] = min(d[j], d[i] + G[i][j]);
+        }
+      }
+
+      return d;
+    }
+
+public:
     vector<vector<int>> apsp_floyd_warshall(vector<vector<int>> &G) {
       /* init */
       vector<vector<int>> D = G;
-      // NOTE: self's distance is 0 !!!
       for (int k = 0; k < D.size(); k++) D[k][k] = 0;
 
-      /* dp */
+      /* dp -> relaxation operation */
       for (int k = 0; k < G.size(); ++k) {
         for (int i = 0; i < G.size(); ++i) {
           for (int j = 0; j < G.size(); ++j) {
@@ -89,12 +105,13 @@ int main() {
     int from, to, weight;
     cin >> from >> to >> weight;
     G[from][to] = weight;
-    G[to][from] = weight;
   }
+  int s, t;
+  cin >> s >> t;
 
   /* algo */
   GraphShortestPath gsp;
-  auto ans = gsp.apsp_floyd_warshall(G);
-  gsp.print_graph(ans);
+  auto ans = gsp.sssp_bellman_ford(G, s);
+  cout << ans[t];
   return 0;
 }
